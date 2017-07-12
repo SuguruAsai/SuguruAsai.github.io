@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title>CSS Kaleidoscope</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="text/javascript">
+    var localVideo;
+    var videoW;
+    var videoH;
+    var canvas;
+    var ctx;
+    var sections;
+    const compressionRatio = 4;
+    const imageType = "image/webp"; // "iamge/png" or "image/jpeg" or "image/webp"
+    const imageQuality = 0.5; // if you use jpeg and webp then you can set number 0.0 to 1.0
+    const extraImageInterval = 3000; // milli-sec
+
+
+    window.onload = function() {
+      startVideo();
+      sections = document.getElementsByTagName('section');
+      setInterval(extraImage, extraImageInterval);
+    };
+
+    function startVideo() {
+      localVideo = document.getElementById('video');
+      canvas = document.getElementById('canvas');
+      ctx = canvas.getContext('2d');
+      let localStream;
+      navigator.mediaDevices.getUserMedia({video: true, audio: false})
+        .then(function(stream) {
+          localStream = stream;
+          localVideo.src = window.URL.createObjectURL(localStream);
+        }).catch(function(error) {
+          console.error('mediaDevice.getUserMedia() error:', error);
+          return;
+      });
+    }
+
+    function extraImage() {
+      console.time("drawImage");
+      ctx.drawImage(localVideo, 0, 0, videoW, videoH);
+      console.timeEnd("drawImage");
+
+      console.time("toDataURL");
+      let imageData = canvas.toDataURL(imageType, imageQuality);
+      console.timeEnd("toDataURL");
+
+      console.time("timer1");
+      [].forEach.call(sections, function(sect) {
+        setTimeout(function() {
+          sect.style.backgroundImage = 'url(' + imageData + ')';
+        }, 0);
+      });
+      console.timeEnd("timer1");
+    }
+
+    function setCanvasSize() {
+      videoW = localVideo.videoWidth / compressionRatio;
+      videoH = localVideo.videoHeight / compressionRatio;
+      canvas.width = videoW;
+      canvas.height = videoH;
+    }
+  </script>
+</head>
+
+<body>
+  <div class="container" style="display: hoge">
+    <section class="sect-1"></section>
+    <section class="sect-2"></section>
+    <section class="sect-3"></section>
+    <section class="sect-4"></section>
+    <section class="sect-5"></section>
+    <section class="sect-6"></section>
+    <section class="sect-7"></section>
+    <section class="sect-8"></section>
+    <section class="sect-9"></section>
+    <section class="sect-10"></section>
+    <section class="sect-11"></section>
+    <section class="sect-12"></section>
+</div>
+<video id="video" autoplay style="width: 320px; height: 240px; border: 1px solid black; display: none;" onloadeddata="setCanvasSize();"></video>
+<canvas id="canvas" style="display: none;"></canvas>
+
+</body>
+</html>
